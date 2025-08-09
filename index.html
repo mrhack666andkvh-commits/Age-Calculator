@@ -99,6 +99,177 @@
       text-align: center;
       margin-top: 15px;
     }
+    footer {
+      margin-top: 40px;
+      color: #ffd700;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>حاسب العمر ⏳ مع نطق صوتي</h1>
+  <form id="ageForm">
+    <label for="day">اليوم</label>
+    <input type="number" id="day" name="day" placeholder="مثلاً 25" min="1" max="31" required />
+    
+    <label for="month">الشهر</label>
+    <input type="number" id="month" name="month" placeholder="مثلاً 8" min="1" max="12" required />
+    
+    <label for="year">السنة</label>
+    <input type="number" id="year" name="year" placeholder="مثلاً 1990" min="1900" max="2025" required />
+    
+    <button type="submit">احسب عمري</button>
+  </form>
+  
+  <div class="error" id="error"></div>
+  <div class="result" id="result"></div>
+
+  <footer>by kvh3nf</footer>
+
+  <script>
+    const form = document.getElementById('ageForm');
+    const resultDiv = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+
+    function speak(text) {
+      if (!('speechSynthesis' in window)) {
+        console.log('الصوت غير مدعوم في متصفحك');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ar-SA';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      errorDiv.textContent = '';
+      resultDiv.textContent = '';
+      resultDiv.classList.remove('show');
+      window.speechSynthesis.cancel();
+
+      const day = parseInt(form.day.value);
+      const month = parseInt(form.month.value);
+      const year = parseInt(form.year.value);
+
+      const inputDate = new Date(year, month - 1, day);
+      const today = new Date();
+
+      if (inputDate > today) {
+        errorDiv.textContent = 'تاريخ الميلاد لا يمكن أن يكون في المستقبل!';
+        return;
+      }
+      if (day !== inputDate.getDate() || month - 1 !== inputDate.getMonth() || year !== inputDate.getFullYear()) {
+        errorDiv.textContent = 'التاريخ غير صحيح. يرجى التأكد من صحة اليوم والشهر والسنة.';
+        return;
+      }
+
+      let ageYears = today.getFullYear() - year;
+      let ageMonths = today.getMonth() - (month - 1);
+      let ageDays = today.getDate() - day;
+
+      if (ageDays < 0) {
+        ageMonths--;
+        ageDays += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+      }
+      if (ageMonths < 0) {
+        ageYears--;
+        ageMonths += 12;
+      }
+
+      let extraMessage = '';
+      if (ageYears <= 13) {
+        extraMessage = 'يا طفل 🎈';
+        speak(extraMessage);
+      } else if (ageYears >= 101) {
+        extraMessage = 'أنت ميت 💀';
+        speak(extraMessage);
+      } else if (ageYears >= 30 && ageYears <= 100) {
+        extraMessage = 'يا عجوز 🦖';
+        speak('يا عجوز');
+      } else if (ageYears >= 14 && ageYears <= 18) {
+        extraMessage = 'يا مراهق 😎';
+        speak('يا مراهق');
+      } else if (ageYears >= 19 && ageYears <= 29) {
+        extraMessage = 'يا شاب 💪';
+        speak('يا شاب');
+      }
+
+      const ageString = `عمرك هو: ${ageYears} سنة، ${ageMonths} شهر، و ${ageDays} يوم 🎉<br><span style="font-size:1.6rem;color:#ffd700;">${extraMessage}</span>`;
+      resultDiv.innerHTML = ageString;
+      resultDiv.classList.add('show');
+    });
+  </script>
+</body>
+</html>      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    input[type="number"] {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 1.1rem;
+      transition: box-shadow 0.3s ease;
+    }
+    input[type="number"]:focus {
+      box-shadow: 0 0 10px #ffd700;
+    }
+    button {
+      margin-top: 10px;
+      padding: 12px;
+      background: #ffd700;
+      color: #333;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 8px rgba(255, 215, 0, 0.6);
+    }
+    button:hover {
+      background: #ffc107;
+    }
+    .result {
+      margin-top: 25px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      min-height: 70px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation-fill-mode: forwards;
+    }
+    .result.show {
+      animation: slideFadeIn 0.6s ease forwards;
+    }
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .error {
+      color: #ff6b6b;
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
@@ -360,3 +531,4 @@
 </body>
 
 </html>
+
